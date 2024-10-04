@@ -9,6 +9,7 @@ const PORT = process.env.PORT || 3000;
 
 let connections = [];
 //checking the jenkins ci and cd
+//checking the declarative ci and cd
 io.on("connect", (socket) => {
   connections.push(socket);
   console.log(`Connected: ${connections.length} sockets connected`);
