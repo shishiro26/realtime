@@ -1,0 +1,28 @@
+name: CI nd CD Realtime board
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Docker buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build the Docker Image
+        run: docker build  -t realtime-board .
+
+      - name: deploy the Image
+        run: docker run -d -p 3000:8080 realtime-board
+
+      
