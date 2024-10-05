@@ -18,7 +18,12 @@ io.on("connect", (socket) => {
   socket.on("draw", (data) => {
     connections.forEach((s) => {
       if (s.id !== socket.id) {
-        s.emit("onDraw", { x: data.x, y: data.y });
+        s.emit("onDraw", {
+          x: data.x,
+          y: data.y,
+          color: data.color,
+          size: data.size,
+        });
       }
     });
   });

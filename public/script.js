@@ -9,17 +9,17 @@ let mousedown = false;
 const socket = io();
 const lineWidthRange = document.getElementById("lineWidthRange");
 ctx.lineWidth = lineWidthRange.value;
+let currentColor = "black"; // Set a default color
 
 lineWidthRange.addEventListener("input", (e) => {
   ctx.lineWidth = e.target.value;
 });
 
-// Function to set stroke color
 const setStrokeColor = (color) => {
   ctx.strokeStyle = color;
+  currentColor = color;
 };
 
-// Add event listeners to buttons
 const buttons = document.querySelectorAll(".btn-box button");
 buttons.forEach((button) => {
   button.addEventListener("click", () => {
@@ -34,7 +34,7 @@ window.onmousedown = (e) => {
   ctx.beginPath();
   ctx.moveTo(x, y);
 
-  socket.emit("down", { x, y });
+  socket.emit("down", { x, y, color: currentColor, lineWidth: ctx.lineWidth });
   mousedown = true;
 };
 
@@ -44,12 +44,16 @@ window.onmouseup = () => {
 };
 
 socket.on("onDraw", (data) => {
+  ctx.strokeStyle = data.color; 
+  ctx.lineWidth = data.lineWidth; 
   ctx.lineTo(data.x, data.y);
   ctx.stroke();
 });
 
-socket.on("onDown", ({ x, y }) => {
-  ctx.beginPath();
+socket.on("onDown", ({ x, y, color, lineWidth }) => {
+  ctx.strokeStyle = color; 
+  ctx.lineWidth = lineWidth; 
+  ctx.beginPath();u
   ctx.moveTo(x, y);
 });
 
@@ -58,11 +62,10 @@ window.onmousemove = (e) => {
   y = e.clientY;
 
   if (mousedown) {
-    socket.emit("draw", { x, y });
+    socket.emit("draw", { x, y, color: currentColor, lineWidth: ctx.lineWidth });
     ctx.lineTo(x, y);
     ctx.stroke();
   }
 };
 
-// Set initial stroke color
 setStrokeColor("black");
