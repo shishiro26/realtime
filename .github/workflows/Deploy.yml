@@ -28,7 +28,7 @@ jobs:
       - name: Copy built files
         run: |
           mkdir -p output
-          docker cp my-running-website:/path/to/built/files/. output/
+          docker cp my-running-website:/app/public/. output/
           docker stop my-running-website
           docker rm my-running-website
 
