@@ -1,0 +1,44 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build the Docker image
+        run: docker build -t realtime-board .
+
+      - name: Run the Docker container
+        run: |
+          docker run --name my-running-website -d -p 8080:8080 realtime-board
+          # Wait for a moment to ensure the container is up
+          sleep 10
+
+      - name: Copy built files
+        run: |
+          mkdir -p output
+          docker cp my-running-website:/path/to/built/files/. output/
+          docker stop my-running-website
+          docker rm my-running-website
+
+      - name: Deploy to GitHub Pages
+        run: |
+          git config --local user.name "${{ secrets.GIT_NAME }}"
+          git config --local user.email "${{ secrets.GIT_EMAIL }}"
+          git clone --branch gh-pages https://github.com/${{ github.repository }} repo
+          cp -r output/* repo/
+          cd repo
+          git add .
+          git commit -m "Deploy website to GitHub Pages" || echo "No changes to commit"
+          git push
